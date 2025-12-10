@@ -18,9 +18,17 @@ from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import render
 
+def health_check(request):
+    """Simple health check endpoint for Railway"""
+    from django.http import JsonResponse
+    return JsonResponse({'status': 'healthy', 'service': 'SmartQuiz Arena'})
+
 def home(request):
     from quizzes.models import Topic
-    topics = Topic.objects.all()
+    try:
+        topics = Topic.objects.all()
+    except Exception as e:
+        topics = []
     return render(request, 'home.html', {'topics': topics})
 
 def leaderboard(request):
@@ -46,6 +54,7 @@ def achievements(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('health/', health_check, name='health_check'),
     path('', home, name='home'),
     path('leaderboard/', leaderboard, name='leaderboard'),
     path('accounts/', include('accounts.urls')),
